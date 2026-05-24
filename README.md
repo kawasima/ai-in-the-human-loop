@@ -69,3 +69,11 @@ Phase 1 (the basic loop) and Phase 2 (surfacing and triage) are implemented
 here. Phase 3 (CI checks, metrics snapshots, automated triage) is intentionally
 deferred. See [docs/roadmap.md](docs/roadmap.md) for what is being held back
 and why.
+
+## Experiments
+
+[examples/todo-app](examples/todo-app/) is a small stub project used as a
+dogfooding target. It shares the parent's `AGENTS.md`, skills, and Claude
+Code settings, but maintains its own `HUMAN.md` so the loop can be
+exercised on a contained codebase without polluting this repository's own
+feedback log.

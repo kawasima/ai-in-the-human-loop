@@ -1,0 +1,14 @@
+{
+  "name": "todo-app",
+  "version": "0.1.0",
+  "description": "Stub todo app used for HUMAN.md loop dogfooding experiments.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test test/"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -42,14 +42,22 @@ suggests them as candidates for the next triage session.
 entries has grown large enough that walking through it by hand is taking
 noticeable time.
 
-### `examples/` directory
+### `examples/` directory — added early on 2026-05-24
 
-A worked example of importing this template into a small project, with the
-resulting `HUMAN.md` after a few rounds of real use.
+Originally listed here with the condition "the template has been imported
+into at least one other repository." That condition was not met. The
+directory was added anyway because there was no other way to exercise the
+loop against a contained codebase without waiting for an external import to
+happen.
 
-**Add when:** the template has been imported into at least one other
-repository and the import revealed steps that the README does not
-currently cover.
+What is in place: `examples/todo-app/` — a TypeScript stub with its own
+`HUMAN.md`, sharing the parent's `AGENTS.md`, `skills/`, and `.claude/`
+settings.
+
+What is not covered: the import process itself (copying files into a
+genuinely separate repository) is still future work. When that happens,
+the README's "Getting started in another repository" section should be
+revised based on what the import actually needs.
 
 ## Items considered and rejected
 
