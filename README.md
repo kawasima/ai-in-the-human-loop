@@ -1,4 +1,4 @@
-# Human improving the loop
+# AI in the human loop
 
 ![A human at a laptop on the left and an AI agent on the right, with an open HUMAN.md notebook listing entries H-001, H-002, H-003 between them. A coral arrow loops from the AI back through the notebook to the human, showing that the AI writes feedback into HUMAN.md so the human can write better requests.](docs/images/hero.webp)
 
