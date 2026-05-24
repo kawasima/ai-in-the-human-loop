@@ -1,0 +1,23 @@
+# Node / TypeScript build artifacts
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Claude Code local settings (personal, not part of the template)
+.claude/settings.local.json
+
+# Experiment scratch
+scratch/
+tmp/
+*.log
