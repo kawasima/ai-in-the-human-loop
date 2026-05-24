@@ -1,0 +1,68 @@
+# AGENTS.md
+
+Instructions for coding agents working in this repository.
+
+## What this repository is
+
+This is both a template for the `HUMAN.md` feedback loop and a live experiment
+running that loop on itself. See [README.md](README.md) for the broader
+context.
+
+When you are working in this repository, you are doing two jobs at once:
+
+1. Maintaining the template files so they remain useful in other repositories.
+2. Updating this repository's own `HUMAN.md` based on what you observe while
+   working here.
+
+## HUMAN.md feedback loop
+
+While working, watch for the following kinds of friction:
+
+- The same ambiguity returning across requests
+- An implementation that stalled because a human decision was missing
+- Rework caused by an unclear change scope
+- A review that missed something because the review criteria were not declared
+- Specification intent that was not written down
+- A situation where you had to make an unsafe assumption
+
+When one of these materially affected the work, invoke the `human-feedback`
+skill (see `skills/human-feedback/SKILL.md`). The skill writes a structured
+entry into `HUMAN.md`.
+
+Do not update `HUMAN.md` when:
+
+- The confusion was a one-off and will not recur
+- An existing entry already covers it and neither frequency nor impact changed
+- You cannot write a concrete Prompt Pattern or Review Pattern for it
+
+`HUMAN.md` is not a place to record human mistakes. It is a place to convert
+observed friction into prompts, review checks, and decisions that improve the
+next round.
+
+## Language
+
+Write all template files in this repository in English: `README.md`,
+`AGENTS.md`, `HUMAN.md`, `HUMAN.schema.md`, `skills/human-feedback/SKILL.md`,
+the GitHub templates, and the Claude Code command files.
+
+When this template is copied into another repository, the `human-feedback`
+skill matches the language already used in that repository's `HUMAN.md`. If it
+is creating `HUMAN.md` fresh, it follows the repository's existing
+documentation language.
+
+## Writing style
+
+- Avoid grand metaphors. Do not write phrases like "feedback loop machinery"
+  or "the central nervous system of the loop."
+- Do not start paragraphs with "**Keyword**: explanation" templates. Write
+  prose.
+- State a conclusion once. Do not restate it at the end of every section.
+- Prefer active verbs ("Observe / Record / Surface / Triage") over
+  nominalized constructs ("the observation phase / the recording mechanism").
+- Bold sparingly. If a paragraph contains several bold spans, the prose is
+  doing too little work.
+
+## PR workflow
+
+This repository targets `master` directly while it is bootstrapping. Once the
+template is stable, switch to a `feature/* → develop` workflow.
