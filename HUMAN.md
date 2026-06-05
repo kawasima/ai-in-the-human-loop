@@ -176,3 +176,27 @@ Implication for the template: when this is copied into another repository
 that already has a stricter markdownlint config, the new owner will need
 to make the same allowance. This is worth mentioning in the README's
 "Getting started" section if it comes up a second time.
+
+### 2026-06-05 — Stop hook added to strengthen Observe
+
+Running the loop on a real, multi-day coding session surfaced a gap: the
+`Observe` edge had no mechanism. The SessionStart hook only surfaces existing
+entries at session start, and the agent reached for the `human-feedback` skill
+only at hard blocks. Softer, recurring friction (a bug report that named a
+symptom but not the observable that localizes it, sending the agent to the
+wrong layer several times) went unrecorded until a human flagged it afterward.
+
+Resolution: added `scripts/stop-reminder.sh`, registered as a Claude Code
+`Stop` hook by `install.sh`. It fires at the end of every turn and emits one
+short, conditional reminder as `additionalContext`, never blocking. The script
+makes no judgment about whether friction occurred; the reminder's brevity and
+the skill's own bar do the filtering. `install.sh`'s hook register/unregister
+was generalized to take an event name so SessionStart and Stop share one
+idempotent jq merge.
+
+Why a Stop hook rather than the Phase 3 "CI check for update misses": the CI
+check is a heavier, PR-time static detector whose add-condition (at least 10
+entries plus a reviewer-flagged miss) is not met. The Stop hook addresses the
+same miss at its source — the moment of observation — with far less machinery,
+which fits the template's "smallest mechanism that earns its place" principle.
+The roadmap's CI-check item stays deferred.

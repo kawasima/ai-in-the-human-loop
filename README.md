@@ -13,8 +13,8 @@ the human can use next time.
 This repository is two things at once:
 
 1. **A template** you can install to start the loop in another repository. The
-   skill, the `/triage` command, the schema, and the SessionStart hook are
-   written to be domain-neutral and install once at user scope; a repository
+   skill, the `/triage` command, the schema, and the SessionStart and Stop hooks
+   are written to be domain-neutral and install once at user scope; a repository
    that opts in carries only its own `HUMAN.md`.
 2. **A live experiment.** This repository runs its own `HUMAN.md` loop, and the
    `Operation Log` section at the bottom of `HUMAN.md` records what worked and
@@ -44,12 +44,20 @@ matches the corrective action, not the place that matches who made the mistake.
 ## The loop
 
 ```
-Observe   → an agent notices friction during work
+Observe   → an agent notices friction during work; the Stop hook nudges it at
+            the end of each turn to record anything it observed
 Record    → the human-feedback skill writes a structured entry to HUMAN.md
 Surface   → the SessionStart hook puts open HUMAN.md entries in front of the
             human at the start of each session
 Triage    → /triage moves entries from open to adopted, obsolete, or merged
 ```
+
+Two Claude Code hooks drive the loop's edges. The **SessionStart hook**
+(`scripts/session-start.sh`) surfaces open entries when a session begins. The
+**Stop hook** (`scripts/stop-reminder.sh`) fires at the end of every turn and
+emits one short, conditional reminder so the agent reconsiders, against the
+skill's own bar, whether the turn produced friction worth recording. It never
+blocks the turn; both hooks stay silent in repositories without a `HUMAN.md`.
 
 The schema for an entry is defined in
 [skills/human-feedback/HUMAN.schema.md](skills/human-feedback/HUMAN.schema.md).
@@ -80,18 +88,18 @@ What each step does:
   Gemini, which share the SKILL.md convention). The schema travels bundled
   inside the skill, so the skill reads it without the repository on disk. For
   Claude Code it also symlinks the `/triage` slash command into
-  `~/.claude/commands/` and registers the SessionStart hook in
+  `~/.claude/commands/` and registers the SessionStart and Stop hooks in
   `~/.claude/settings.json` — a JSON-aware merge that leaves your existing
   hooks untouched and is idempotent on repeat runs. Gemini uses a TOML format
   incompatible with our command, and modern Codex prefers skills over prompts,
-  so neither gets the command; the hook is Claude-Code-specific.
+  so neither gets the command; the hooks are Claude-Code-specific.
 - **`--init`**: copies a single `HUMAN.md` into the current directory. An
   existing `HUMAN.md` is never overwritten. Nothing else lands in the repo —
-  the skill, command, schema, and hook all live at user scope.
+  the skill, command, schema, and hooks all live at user scope.
 
-The SessionStart hook resolves `./HUMAN.md` from the repository root at session
-start. In a repository without a `HUMAN.md` it prints nothing and exits, so the
-global hook is harmless everywhere else.
+Both hooks resolve `./HUMAN.md` from the repository root. In a repository
+without a `HUMAN.md` they print nothing and exit, so the global hooks are
+harmless everywhere else.
 
 After `--init`, empty out the sample entries in `HUMAN.md` (keep the headers and
 the `Operation Log` section), then commit it.
@@ -101,7 +109,7 @@ If the target repository uses a documentation language other than English, the
 
 Other commands: `install.sh --update` pulls the latest changes (symlinks pick
 them up automatically); `install.sh --uninstall <platform>` removes the links
-for that platform, removes the SessionStart hook for Claude Code, and leaves
+for that platform, removes the SessionStart and Stop hooks for Claude Code, and leaves
 the checkout for others.
 
 ## Scope of this repository
