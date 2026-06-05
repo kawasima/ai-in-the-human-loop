@@ -8,7 +8,7 @@
 #      available across every repository on this machine.
 #
 #   2) Project init (copy templates into the current repository). Use to
-#      add HUMAN.md, the SessionStart hook, and the GitHub templates to a
+#      add HUMAN.md, the SessionStart and Stop hooks, and the GitHub templates to a
 #      specific repository.
 #
 # Usage:
@@ -126,52 +126,57 @@ link_command() {
   printf '  ✓ %s → %s\n' "$dst" "$src"
 }
 
-hook_script() { printf '%s\n' "$REPO_DIR/scripts/session-start.sh"; }
+session_start_script() { printf '%s\n' "$REPO_DIR/scripts/session-start.sh"; }
+stop_reminder_script() { printf '%s\n' "$REPO_DIR/scripts/stop-reminder.sh"; }
 
-# Register the SessionStart hook in ~/.claude/settings.json. The hook runs the
-# session-start script from the global checkout by absolute path, so it works
-# regardless of the session's working directory. The script itself looks for a
-# ./HUMAN.md and stays silent when there is none, which makes the global hook
-# harmless in repositories that do not use the loop.
+# Register a hook in ~/.claude/settings.json. The hook runs its script from the
+# global checkout by absolute path, so it works regardless of the session's
+# working directory. Each script looks for a ./HUMAN.md and stays silent when
+# there is none, which makes the global hooks harmless in repositories that do
+# not use the loop.
 #
-# The merge is idempotent: if a SessionStart hook already runs this script, it
-# is left untouched. settings.json may hold the user's own hooks, so we merge
-# with jq rather than overwrite.
+# The merge is idempotent: if the named hook already runs this script, it is
+# left untouched. settings.json may hold the user's own hooks, so we merge with
+# jq rather than overwrite.
+#
+# register_hook <event> <script-path>
+#   <event>: a Claude Code hook event name (SessionStart, Stop).
 register_hook() {
+  local event="$1" script="$2"
   local settings="$HOME/.claude/settings.json"
   local cmd
-  cmd="bash $(hook_script)"
+  cmd="bash $script"
 
   if ! command -v jq >/dev/null 2>&1; then
-    printf '  ! jq not found — cannot safely merge the SessionStart hook.\n' >&2
+    printf '  ! jq not found — cannot safely merge the %s hook.\n' "$event" >&2
     printf '    Add this to %s by hand:\n' "$settings" >&2
-    printf '      SessionStart → command → %s\n' "$cmd" >&2
+    printf '      %s → command → %s\n' "$event" "$cmd" >&2
     return 0
   fi
 
   mkdir -p "$(dirname "$settings")"
   [[ -f "$settings" ]] || printf '{}\n' > "$settings"
 
-  if jq -e --arg cmd "$cmd" '
-    any((.hooks.SessionStart // [])[].hooks[]?;
+  if jq -e --arg event "$event" --arg cmd "$cmd" '
+    any((.hooks[$event] // [])[].hooks[]?;
         .type == "command" and .command == $cmd)
   ' "$settings" >/dev/null 2>&1; then
-    printf '  • SessionStart hook already registered in %s\n' "$settings"
+    printf '  • %s hook already registered in %s\n' "$event" "$settings"
     return 0
   fi
 
   local tmp
   tmp="$(mktemp)"
-  if jq --arg cmd "$cmd" '
+  if jq --arg event "$event" --arg cmd "$cmd" '
     .hooks //= {} |
-    .hooks.SessionStart //= [] |
-    .hooks.SessionStart += [{
+    .hooks[$event] //= [] |
+    .hooks[$event] += [{
       "matcher": "*",
       "hooks": [{ "type": "command", "command": $cmd }]
     }]
   ' "$settings" > "$tmp"; then
     mv "$tmp" "$settings"
-    printf '  ✓ SessionStart hook registered in %s\n' "$settings"
+    printf '  ✓ %s hook registered in %s\n' "$event" "$settings"
   else
     rm -f "$tmp"
     printf '  ! Failed to update %s — leaving it unchanged.\n' "$settings" >&2
@@ -179,25 +184,27 @@ register_hook() {
   fi
 }
 
+# unregister_hook <event> <script-path>
 unregister_hook() {
+  local event="$1" script="$2"
   local settings="$HOME/.claude/settings.json"
   local cmd
-  cmd="bash $(hook_script)"
+  cmd="bash $script"
 
   [[ -f "$settings" ]] || return 0
   command -v jq >/dev/null 2>&1 || return 0
 
   local tmp
   tmp="$(mktemp)"
-  if jq --arg cmd "$cmd" '
-    if .hooks.SessionStart then
-      .hooks.SessionStart |= map(
+  if jq --arg event "$event" --arg cmd "$cmd" '
+    if .hooks[$event] then
+      .hooks[$event] |= map(
         .hooks |= map(select(.command != $cmd))
-      ) | .hooks.SessionStart |= map(select((.hooks | length) > 0))
+      ) | .hooks[$event] |= map(select((.hooks | length) > 0))
     else . end
   ' "$settings" > "$tmp"; then
     mv "$tmp" "$settings"
-    printf '  ✓ SessionStart hook removed from %s\n' "$settings"
+    printf '  ✓ %s hook removed from %s\n' "$event" "$settings"
   else
     rm -f "$tmp"
   fi
@@ -239,11 +246,14 @@ cmd_install() {
     printf -- '→ Skipping /triage command (not supported on %s)\n' "$id"
   fi
 
-  # The SessionStart hook is a Claude Code mechanism. Other platforms get the
-  # skill via the global symlink but no hook-based Surface here.
+  # The SessionStart and Stop hooks are Claude Code mechanisms. SessionStart
+  # surfaces open entries at the start of a session; Stop nudges the agent to
+  # record friction at the end of each turn (Observe). Other platforms get the
+  # skill via the global symlink but no hook-based Surface/Observe here.
   if [[ "$id" == "claude" ]]; then
-    printf -- '→ Registering the SessionStart hook\n'
-    register_hook
+    printf -- '→ Registering the SessionStart and Stop hooks\n'
+    register_hook SessionStart "$(session_start_script)"
+    register_hook Stop "$(stop_reminder_script)"
   fi
 
   printf '\n✓ Installed AI in the human loop for %s\n' "$id"
@@ -264,7 +274,8 @@ cmd_uninstall() {
   unlink_skill "$skills_dir"
   unlink_command "$commands_dir"
   if [[ "$id" == "claude" ]]; then
-    unregister_hook
+    unregister_hook SessionStart "$(session_start_script)"
+    unregister_hook Stop "$(stop_reminder_script)"
   fi
 
   if [[ -d "$REPO_DIR" ]]; then
