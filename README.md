@@ -12,10 +12,10 @@ the human can use next time.
 
 This repository is two things at once:
 
-1. **A template** you can copy into another repository to start the loop. The
-   files in this repository (`AGENTS.md`, `HUMAN.schema.md`,
-   `skills/human-feedback/SKILL.md`, the GitHub templates, the Claude Code
-   settings) are written to be domain-neutral so they transfer directly.
+1. **A template** you can install to start the loop in another repository. The
+   skill, the `/triage` command, the schema, and the SessionStart hook are
+   written to be domain-neutral and install once at user scope; a repository
+   that opts in carries only its own `HUMAN.md`.
 2. **A live experiment.** This repository runs its own `HUMAN.md` loop, and the
    `Operation Log` section at the bottom of `HUMAN.md` records what worked and
    what did not.
@@ -46,24 +46,63 @@ matches the corrective action, not the place that matches who made the mistake.
 ```
 Observe   → an agent notices friction during work
 Record    → the human-feedback skill writes a structured entry to HUMAN.md
-Surface   → SessionStart hook, PR template, and issue templates put HUMAN.md
-            entries in front of the human at the moments they act
+Surface   → the SessionStart hook puts open HUMAN.md entries in front of the
+            human at the start of each session
 Triage    → /triage moves entries from open to adopted, obsolete, or merged
 ```
 
-The schema for an entry is defined in [HUMAN.schema.md](HUMAN.schema.md).
+The schema for an entry is defined in
+[skills/human-feedback/HUMAN.schema.md](skills/human-feedback/HUMAN.schema.md).
 
 ## Getting started in another repository
 
-1. Copy `AGENTS.md`, `HUMAN.md`, `HUMAN.schema.md`, the `skills/` directory,
-   the `.claude/` directory, and the `.github/` directory into the target
-   repository.
-2. Empty out the sample entries in `HUMAN.md`. Keep the headers and the
-   `Operation Log` section.
-3. If the target repository uses a documentation language other than English,
-   the `human-feedback` skill will match that language when it writes entries.
-4. Open a pull request with the imported files so contributors see the
-   `Human feedback loop` section of the PR template at least once.
+Use [install.sh](install.sh). It has two steps — install everything the loop
+needs once at user scope, then drop a `HUMAN.md` into each repository where you
+want the loop. A repository that opts in carries a single file.
+
+```sh
+# 1. Install the loop for your agent at user scope.
+#    Pick one (or run multiple times for multiple agents):
+curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s claude
+curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s codex
+curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s gemini
+
+# 2. In each repository where you want the loop, drop in HUMAN.md:
+cd <your-repo>
+bash ~/.ai-in-the-human-loop/repo/install.sh --init
+```
+
+What each step does:
+
+- **Global install** (`install.sh <platform>`): symlinks
+  `skills/human-feedback/` into your agent's user-scope skills directory
+  (`~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex and
+  Gemini, which share the SKILL.md convention). The schema travels bundled
+  inside the skill, so the skill reads it without the repository on disk. For
+  Claude Code it also symlinks the `/triage` slash command into
+  `~/.claude/commands/` and registers the SessionStart hook in
+  `~/.claude/settings.json` — a JSON-aware merge that leaves your existing
+  hooks untouched and is idempotent on repeat runs. Gemini uses a TOML format
+  incompatible with our command, and modern Codex prefers skills over prompts,
+  so neither gets the command; the hook is Claude-Code-specific.
+- **`--init`**: copies a single `HUMAN.md` into the current directory. An
+  existing `HUMAN.md` is never overwritten. Nothing else lands in the repo —
+  the skill, command, schema, and hook all live at user scope.
+
+The SessionStart hook resolves `./HUMAN.md` from the repository root at session
+start. In a repository without a `HUMAN.md` it prints nothing and exits, so the
+global hook is harmless everywhere else.
+
+After `--init`, empty out the sample entries in `HUMAN.md` (keep the headers and
+the `Operation Log` section), then commit it.
+
+If the target repository uses a documentation language other than English, the
+`human-feedback` skill will match that language when it writes entries.
+
+Other commands: `install.sh --update` pulls the latest changes (symlinks pick
+them up automatically); `install.sh --uninstall <platform>` removes the links
+for that platform, removes the SessionStart hook for Claude Code, and leaves
+the checkout for others.
 
 ## Scope of this repository
 
@@ -75,7 +114,6 @@ and why.
 ## Experiments
 
 [examples/todo-app](examples/todo-app/) is a small stub project used as a
-dogfooding target. It shares the parent's `AGENTS.md`, skills, and Claude
-Code settings, but maintains its own `HUMAN.md` so the loop can be
-exercised on a contained codebase without polluting this repository's own
-feedback log.
+dogfooding target. The skill, command, schema, and hook come from the global
+install; the example maintains its own `HUMAN.md` so the loop can be exercised
+on a contained codebase without polluting this repository's own feedback log.

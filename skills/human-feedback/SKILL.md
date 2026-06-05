@@ -1,6 +1,6 @@
 ---
 name: human-feedback
-description: Use when development work reveals friction caused by an unclear request, missing decision, undeclared scope, absent review criteria, or a missing specification — and that friction materially affected implementation, review, or design. Converts the observation into a structured entry in HUMAN.md.
+description: Use while or after development work when friction on the human side of the loop materially affected implementation, review, or design — an unclear request, a recurring ambiguity, a missing decision, undeclared scope, absent review criteria, a missing specification, or an unsafe assumption you were forced to make. Watch for these during work and convert the observation into a structured entry in HUMAN.md.
 ---
 
 # Human Feedback Skill
@@ -13,7 +13,13 @@ next time.
 
 ## When to use
 
-Use this skill when **all** of the following are true:
+Watch for these kinds of friction while working: the same ambiguity returning
+across requests, an implementation that stalled because a human decision was
+missing, rework caused by an unclear change scope, a review that missed
+something because the criteria were not declared, specification intent that was
+never written down, or a point where you had to make an unsafe assumption.
+
+Invoke the skill when **all** of the following are true:
 
 - The work just done was non-trivial.
 - A specific moment of friction can be named, not just a vague feeling.
@@ -46,9 +52,10 @@ Do **not** use this skill for:
    - If the observation is new, draft a new entry. Use the next unused
      `H-NNN` ID.
 
-3. **Write the entry.** Follow `HUMAN.schema.md` exactly. All fields are
-   required. The body must contain `Observed`, `Impact`, `Better Human
-   Action`, and at least one of `Prompt Pattern` or `Review Pattern`.
+3. **Write the entry.** Follow the schema in `HUMAN.schema.md` (bundled next
+   to this skill) exactly. All fields are required. The body must contain
+   `Observed`, `Impact`, `Better Human Action`, and at least one of `Prompt
+   Pattern` or `Review Pattern`.
 
 4. **Check the update threshold before saving.**
    - Is the Prompt Pattern paste-ready? A reader should be able to copy it
