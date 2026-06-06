@@ -7,9 +7,9 @@
 #      user-scope directory). Use when you want the human-feedback skill
 #      available across every repository on this machine.
 #
-#   2) Project init (copy templates into the current repository). Use to
-#      add HUMAN.md, the SessionStart and Stop hooks, and the GitHub templates to a
-#      specific repository.
+#   2) Project init (copy a HUMAN.md into the current repository). Use to add
+#      HUMAN.md to a specific repo; the skill, command, schema, and hooks are
+#      installed once at user scope by mode 1, not per repo.
 #
 # Usage:
 #   ./install.sh                       Prompt for platform
@@ -145,7 +145,9 @@ register_hook() {
   local event="$1" script="$2"
   local settings="$HOME/.claude/settings.json"
   local cmd
-  cmd="bash $script"
+  # Quote the script path so the stored command survives a checkout path with
+  # spaces. unregister_hook must build cmd identically for the match to hold.
+  cmd="bash \"$script\""
 
   if ! command -v jq >/dev/null 2>&1; then
     printf '  ! jq not found — cannot safely merge the %s hook.\n' "$event" >&2
@@ -189,7 +191,8 @@ unregister_hook() {
   local event="$1" script="$2"
   local settings="$HOME/.claude/settings.json"
   local cmd
-  cmd="bash $script"
+  # Must match register_hook's quoting exactly, or the entry won't be found.
+  cmd="bash \"$script\""
 
   [[ -f "$settings" ]] || return 0
   command -v jq >/dev/null 2>&1 || return 0
