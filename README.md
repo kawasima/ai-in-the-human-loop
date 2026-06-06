@@ -97,9 +97,9 @@ What each step does:
   existing `HUMAN.md` is never overwritten. Nothing else lands in the repo —
   the skill, command, schema, and hooks all live at user scope.
 
-Both hooks resolve `./HUMAN.md` from the repository root. In a repository
-without a `HUMAN.md` they print nothing and exit, so the global hooks are
-harmless everywhere else.
+Both hooks look for `./HUMAN.md` in the current working directory (the repo
+root at session start). In a directory without a `HUMAN.md` they print nothing
+and exit, so the global hooks are harmless everywhere else.
 
 After `--init`, empty out the sample entries in `HUMAN.md` (keep the headers and
 the `Operation Log` section), then commit it.

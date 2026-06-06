@@ -23,14 +23,14 @@ if [[ ! -f "$HUMAN_MD" ]]; then
   exit 0
 fi
 
-REMINDER='[human-loop] このターンに非自明な人間側の摩擦（曖昧な要求・未決の判断・取り違えた前提・繰り返した質問）があったなら、human-feedback skill で HUMAN.md に記録するか検討せよ。無ければ何もしないでよい。'
+REMINDER='[human-loop] If this turn involved non-obvious human-side friction (an unclear request, an undecided judgment, a misread assumption, a repeated question), consider recording it in HUMAN.md via the human-feedback skill. If there was none, do nothing.'
 
 if command -v jq >/dev/null 2>&1; then
   jq -cn --arg ctx "$REMINDER" \
     '{hookSpecificOutput: {hookEventName: "Stop", additionalContext: $ctx}}'
 else
-  # Fallback without jq: the reminder is plain ASCII-safe JSON punctuation around
-  # a fixed string with no embedded quotes or backslashes, so manual emission is safe.
+  # Fallback without jq: the reminder is a fixed string with no embedded quotes
+  # or backslashes, so emitting it inside this JSON punctuation by hand is safe.
   printf '{"hookSpecificOutput":{"hookEventName":"Stop","additionalContext":"%s"}}\n' "$REMINDER"
 fi
 

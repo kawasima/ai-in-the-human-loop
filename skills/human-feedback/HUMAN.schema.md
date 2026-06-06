@@ -4,9 +4,9 @@ Schema for entries in `HUMAN.md`. The `human-feedback` skill produces entries
 that follow this schema.
 
 This copy is bundled with the skill so the globally-installed skill can read it
-without the upstream repository on disk. The repository root keeps an identical
-copy at `../../HUMAN.schema.md`; the two are kept in sync. When editing the
-schema, change both.
+without the upstream repository on disk. The repository root keeps a copy at
+`../../HUMAN.schema.md`. Only this intro note differs between the two; the schema
+itself is kept in sync, so when you change the schema, change both.
 
 ## Entry format
 
