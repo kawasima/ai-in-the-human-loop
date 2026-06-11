@@ -26,10 +26,13 @@ While working, watch for the following kinds of friction:
 - A situation where you had to make an unsafe assumption
 
 When one of these materially affected the work, invoke the `human-feedback`
-skill (see `skills/human-feedback/SKILL.md`). The skill writes a structured
-entry into `HUMAN.md`.
+skill (see `skills/human-feedback/SKILL.md`). The loop keeps two files: the
+skill appends the raw observation to `HUMAN_FRICTIONS.md` (the log layer, append-
+only) and, when it clears the threshold, writes or sharpens a rule in `HUMAN.md`
+(the rules layer). Each rule links to its friction by `H-ID`; when similar rules
+pile up, abstract them into one meta-rule.
 
-Do not update `HUMAN.md` when:
+Do not add a rule to `HUMAN.md` when:
 
 - The confusion was a one-off and will not recur
 - An existing entry already covers it and neither frequency nor impact changed
@@ -42,8 +45,9 @@ next round.
 ## Language
 
 Write all template files in this repository in English: `README.md`,
-`AGENTS.md`, `HUMAN.md`, `HUMAN.schema.md`, `skills/human-feedback/SKILL.md`,
-the GitHub templates, and the Claude Code command files.
+`AGENTS.md`, `HUMAN.md`, `HUMAN_FRICTIONS.md`, `HUMAN.schema.md`,
+`skills/human-feedback/SKILL.md`, the GitHub templates, and the Claude Code
+command files.
 
 When this template is copied into another repository, the `human-feedback`
 skill matches the language already used in that repository's `HUMAN.md`. If it

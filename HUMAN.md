@@ -1,16 +1,31 @@
-# HUMAN.md
+# HUMAN.md — Action Rules (rules layer)
 
-Friction observed on the human side of the agent loop, structured into items
-that change how requests, reviews, and decisions are made next time.
+The current, distilled rules for how to write requests, review work, and make
+decisions next time. Few, abstracted, rewritten as they sharpen. The agent does
+not update this file to assign blame; it converts friction into something you
+can paste into the next request or check during the next review.
 
-Schema: [HUMAN.schema.md](HUMAN.schema.md).
-Loop overview: [README.md](README.md).
+Raw observations (when and in what context each friction happened) live,
+append-only, in [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md). Each rule links to the
+friction IDs that justify it.
 
-When you read this file, you are looking at improvements that the agent has
-suggested for your own request, review, and decision behavior. The agent does
-not update this file to assign blame; it updates it to convert friction into
-something you can paste into the next request or check during the next
-review.
+Schema: [HUMAN.schema.md](HUMAN.schema.md). Loop overview: [README.md](README.md).
+
+## How to run the loop in this repo (takes precedence over the skill)
+
+When the human-feedback skill fires:
+
+1. **Append the observation to HUMAN_FRICTIONS.md** (date, context, impact).
+   Append-only — never rewrite a past observation.
+2. **Update the rule here.** If the observation matches an existing rule, add the
+   friction ID and sharpen the rule body (Prompt/Review Pattern). If it reveals a
+   new generalization, write a new rule.
+3. **When similar rules accumulate, abstract upward** into a single meta-rule and
+   move the absorbed ones to Merged (instance → pattern → meta-rule). Keep the
+   friction log; the meta-rule points at several friction IDs.
+4. **Every rule carries a paste-ready Prompt Pattern or a runnable Review
+   Pattern.** If you cannot write one, do not make a rule — leave it in the
+   friction log only.
 
 ---
 
@@ -18,26 +33,10 @@ review.
 
 ### H-001: Declare change scope before requesting implementation
 
-- **Status**: open
 - **Category**: scope
-- **First observed**: 2026-05-24
-- **Last observed**: 2026-05-24
-- **Frequency**: 1
-- **Impact**: medium
+- **Status**: open
+- **Friction log**: [HUMAN_FRICTIONS.md → H-001](HUMAN_FRICTIONS.md)
 - **Linked PRs**: -
-- **Linked Memory**: -
-
-#### Observed
-
-A request to implement a change did not say whether the API surface, database
-schema, UI, tests, or documentation were inside the change set. The agent
-chose the narrowest interpretation and left related updates untouched.
-
-#### Impact
-
-The implementation landed inside the agent's chosen boundary but left
-adjacent code in an inconsistent state. The follow-up needed a second round
-of work to reconcile.
 
 #### Better Human Action
 
@@ -68,26 +67,10 @@ declared scope was touched, ask why before approving.
 
 ### H-002: State the success criterion when the work is open-ended
 
-- **Status**: open
 - **Category**: spec
-- **First observed**: 2026-05-24
-- **Last observed**: 2026-05-24
-- **Frequency**: 1
-- **Impact**: medium
+- **Status**: open
+- **Friction log**: [HUMAN_FRICTIONS.md → H-002](HUMAN_FRICTIONS.md)
 - **Linked PRs**: -
-- **Linked Memory**: -
-
-#### Observed
-
-A request asked the agent to "improve" or "clean up" an area without naming a
-condition under which the work would be done. The agent stopped at a point
-that felt reasonable but was not the human's stopping point.
-
-#### Impact
-
-The agent over-shot in some places (refactors the human did not want) and
-under-shot in others (left work the human expected to be included). Review
-time went to renegotiating the boundary rather than judging the result.
 
 #### Better Human Action
 
@@ -129,74 +112,6 @@ improvement turned out not to help.
 
 ## Merged Items
 
-No items yet. Entries move here when they are absorbed into another entry.
-
----
-
-## Operation Log
-
-Notes from running the loop on this repository itself. Append-only, newest
-last. Each entry: date, what happened, what changed in the template.
-
-### 2026-05-24 — Bootstrap
-
-Repository created. The two open items above (`H-001`, `H-002`) are seeded
-from friction observed during the brainstorming session that produced this
-template — they are not predictions, they are observations of how this very
-project's initial request was framed.
-
-### 2026-05-24 — examples/todo-app added ahead of schedule
-
-The `examples/` directory was originally a Phase 3 deferred item with the
-"add when" condition of "imported into at least one other repository." That
-condition has not been met. The directory was added anyway, so the loop
-could be exercised on a contained codebase without waiting for an external
-import to happen. The roadmap entry has been updated to reflect this.
-
-The trade-off accepted: `examples/todo-app` is not actually a separate
-repository, so it does not test the import process. It only tests whether
-the loop produces useful entries when run against a small unrelated
-codebase. The import-process test remains future work.
-
-### 2026-05-24 — markdownlint vs. entry schema
-
-The first observation while editing `HUMAN.md` itself: the schema requires
-`#### Observed`, `#### Impact`, `#### Better Human Action`, `#### Prompt
-Pattern`, `#### Review Pattern` to repeat under every `### H-NNN` entry.
-Markdownlint's default MD024 (no duplicate headings) flags this as a
-problem.
-
-This is not a human-side friction; it is a tooling-side friction caused by
-the template itself. Resolution: added `.markdownlint.json` with
-`MD024.siblings_only: true` so duplicate H4s are allowed when they live
-under different H3 parents. Also disabled MD013 (line length) since wrapped
-entry bodies will trip it.
-
-Implication for the template: when this is copied into another repository
-that already has a stricter markdownlint config, the new owner will need
-to make the same allowance. This is worth mentioning in the README's
-"Getting started" section if it comes up a second time.
-
-### 2026-06-05 — Stop hook added to strengthen Observe
-
-Running the loop on a real, multi-day coding session surfaced a gap: the
-`Observe` edge had no mechanism. The SessionStart hook only surfaces existing
-entries at session start, and the agent reached for the `human-feedback` skill
-only at hard blocks. Softer, recurring friction (a bug report that named a
-symptom but not the observable that localizes it, sending the agent to the
-wrong layer several times) went unrecorded until a human flagged it afterward.
-
-Resolution: added `scripts/stop-reminder.sh`, registered as a Claude Code
-`Stop` hook by `install.sh`. It fires at the end of every turn and emits one
-short, conditional reminder as `additionalContext`, never blocking. The script
-makes no judgment about whether friction occurred; the reminder's brevity and
-the skill's own bar do the filtering. `install.sh`'s hook register/unregister
-was generalized to take an event name so SessionStart and Stop share one
-idempotent jq merge.
-
-Why a Stop hook rather than the Phase 3 "CI check for update misses": the CI
-check is a heavier, PR-time static detector whose add-condition (at least 10
-entries plus a reviewer-flagged miss) is not met. The Stop hook addresses the
-same miss at its source — the moment of observation — with far less machinery,
-which fits the template's "smallest mechanism that earns its place" principle.
-The roadmap's CI-check item stays deferred.
+No items yet. When similar rules are abstracted into one meta-rule, the absorbed
+rules move here (the friction log in HUMAN_FRICTIONS.md is kept; the meta-rule
+points at their H-IDs).
