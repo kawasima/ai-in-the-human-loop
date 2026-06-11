@@ -15,10 +15,11 @@ This repository is two things at once:
 1. **A template** you can install to start the loop in another repository. The
    skill, the `/triage` command, the schema, and the SessionStart and Stop hooks
    are written to be domain-neutral and install once at user scope; a repository
-   that opts in carries only its own `HUMAN.md`.
-2. **A live experiment.** This repository runs its own `HUMAN.md` loop, and the
-   `Operation Log` section at the bottom of `HUMAN.md` records what worked and
-   what did not.
+   that opts in carries its own `HUMAN.md` (the rules layer) and
+   `HUMAN_FRICTIONS.md` (the log layer).
+2. **A live experiment.** This repository runs its own loop, and the
+   `Operation Log` section at the bottom of `HUMAN_FRICTIONS.md` records what
+   worked and what did not.
 
 ## How `HUMAN.md` differs from Claude Code memory
 
@@ -46,8 +47,9 @@ matches the corrective action, not the place that matches who made the mistake.
 ```
 Observe   → an agent notices friction during work; the Stop hook nudges it at
             the end of each turn to record anything it observed
-Record    → the human-feedback skill writes a structured entry to HUMAN.md
-Surface   → the SessionStart hook puts open HUMAN.md entries in front of the
+Record    → the human-feedback skill logs the observation to HUMAN_FRICTIONS.md,
+            and when it clears the threshold writes/updates a rule in HUMAN.md
+Surface   → the SessionStart hook puts the open HUMAN.md rules in front of the
             human at the start of each session
 Triage    → /triage moves entries from open to adopted, obsolete, or merged
 ```
@@ -65,8 +67,9 @@ The schema for an entry is defined in
 ## Getting started in another repository
 
 Use [install.sh](install.sh). It has two steps — install everything the loop
-needs once at user scope, then drop a `HUMAN.md` into each repository where you
-want the loop. A repository that opts in carries a single file.
+needs once at user scope, then drop `HUMAN.md` and `HUMAN_FRICTIONS.md` into each
+repository where you want the loop. A repository that opts in carries two files:
+the rules layer and the log layer.
 
 ```sh
 # 1. Install the loop for your agent at user scope.
@@ -75,7 +78,7 @@ curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/
 curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s codex
 curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s gemini
 
-# 2. In each repository where you want the loop, drop in HUMAN.md:
+# 2. In each repository where you want the loop, drop in the two files:
 cd <your-repo>
 bash ~/.ai-in-the-human-loop/repo/install.sh --init
 ```
@@ -93,16 +96,18 @@ What each step does:
   hooks untouched and is idempotent on repeat runs. Gemini uses a TOML format
   incompatible with our command, and modern Codex prefers skills over prompts,
   so neither gets the command; the hooks are Claude-Code-specific.
-- **`--init`**: copies a single `HUMAN.md` into the current directory. An
-  existing `HUMAN.md` is never overwritten. Nothing else lands in the repo —
-  the skill, command, schema, and hooks all live at user scope.
+- **`--init`**: copies `HUMAN.md` (rules layer) and `HUMAN_FRICTIONS.md` (log
+  layer) into the current directory. Existing files are never overwritten.
+  Nothing else lands in the repo — the skill, command, schema, and hooks all
+  live at user scope.
 
 Both hooks look for `./HUMAN.md` in the current working directory (the repo
 root at session start). In a directory without a `HUMAN.md` they print nothing
 and exit, so the global hooks are harmless everywhere else.
 
-After `--init`, empty out the sample entries in `HUMAN.md` (keep the headers and
-the `Operation Log` section), then commit it.
+After `--init`, empty out the sample entries: in `HUMAN.md` keep the headers; in
+`HUMAN_FRICTIONS.md` keep the headers and the `Operation Log` section. Then
+commit both.
 
 If the target repository uses a documentation language other than English, the
 `human-feedback` skill will match that language when it writes entries.
@@ -122,6 +127,6 @@ and why.
 ## Experiments
 
 [examples/todo-app](examples/todo-app/) is a small stub project used as a
-dogfooding target. The skill, command, schema, and hook come from the global
+dogfooding target. The skill, command, schema, and hooks come from the global
 install; the example maintains its own `HUMAN.md` so the loop can be exercised
 on a contained codebase without polluting this repository's own feedback log.

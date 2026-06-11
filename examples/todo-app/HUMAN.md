@@ -1,8 +1,9 @@
-# HUMAN.md (todo-app)
+# HUMAN.md (todo-app) — Action Rules (rules layer)
 
-Friction observed while working on `examples/todo-app`. This file is
-independent from the parent repository's `HUMAN.md` — it exists so the loop
-can be exercised on a smaller, contained codebase.
+Action rules distilled from friction observed while working on
+`examples/todo-app`. This file is independent from the parent repository's
+`HUMAN.md`. Raw observations live, append-only, in
+[HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md).
 
 Schema and update rules follow the parent repository's
 [HUMAN.schema.md](../../HUMAN.schema.md).
@@ -30,13 +31,3 @@ No items yet.
 ## Merged Items
 
 No items yet.
-
----
-
-## Operation Log
-
-### 2026-05-24 — Bootstrap
-
-`todo-app` created as a dogfooding target. No entries yet — entries will
-appear here as ambiguous requests are made against this codebase and the
-`human-feedback` skill records the resulting friction.

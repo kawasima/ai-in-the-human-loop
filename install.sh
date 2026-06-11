@@ -296,13 +296,14 @@ cmd_update() {
   printf '✓ Updated.\n'
 }
 
-# --init: drop HUMAN.md into the current directory. Everything else the loop
-# needs — the skill, the /triage command, the schema, and the SessionStart
-# hook — is installed once at user scope by `install.sh <platform>`, so a repo
-# that opts into the loop carries a single file.
+# --init: drop HUMAN.md (rules layer) and HUMAN_FRICTIONS.md (log layer) into the
+# current directory. Everything else the loop needs — the skill, the /triage
+# command, the schema, and the SessionStart and Stop hooks — is installed once at
+# user scope by `install.sh <platform>`, so a repo that opts into the loop carries
+# two files.
 #
-# An existing HUMAN.md is never overwritten; it is a user-edited file and
-# silently replacing it would lose work (see spec-kit issue #507).
+# An existing file is never overwritten; it is user-edited and silently replacing
+# it would lose work (see spec-kit issue #507).
 init_copy() {
   local src="$1" dst="$2"
   if [[ -e "$dst" ]]; then
@@ -326,12 +327,14 @@ cmd_init() {
   printf -- '→ Initializing AI in the human loop in %s\n' "$target_root"
 
   init_copy "$REPO_DIR/HUMAN.md" "$target_root/HUMAN.md"
+  init_copy "$REPO_DIR/HUMAN_FRICTIONS.md" "$target_root/HUMAN_FRICTIONS.md"
 
-  printf '\n✓ HUMAN.md placed.\n'
-  printf '  Empty the sample entries (keep the headers and the Operation Log\n'
-  printf '  section), then commit it.\n'
+  printf '\n✓ HUMAN.md (rules layer) and HUMAN_FRICTIONS.md (log layer) placed.\n'
+  printf '  Empty the sample entries — in HUMAN.md keep the headers; in\n'
+  printf '  HUMAN_FRICTIONS.md keep the headers and the Operation Log section —\n'
+  printf '  then commit both.\n'
   printf '  The skill, the /triage command, the schema, and the SessionStart\n'
-  printf '  hook are delivered globally — make sure you also ran:\n'
+  printf '  and Stop hooks are delivered globally — make sure you also ran:\n'
   printf '    install.sh <platform>\n'
 }
 
