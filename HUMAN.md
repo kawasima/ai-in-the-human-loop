@@ -96,6 +96,39 @@ human gave. If it does not, the PR was not actually answering the request.
 
 ---
 
+### H-003: Name where prior work lives when asking to reflect it
+
+- **Category**: context
+- **Status**: open
+- **Friction log**: [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md) → `H-003`
+- **Linked PRs**: -
+
+#### Better Human Action
+
+When asking to reflect, port, or sync work done in another session, repository,
+or checkout, name where it lives — a path, branch, or commit — especially when
+it is outside the usual `~/workspace` clone location (a global install dir,
+another machine's checkout, a stash, a branch in a sibling clone).
+
+#### Prompt Pattern
+
+```text
+Reflect prior work into this repo.
+Source: <repo path or URL> @ <branch or commit>
+  e.g. ~/.ai-in-the-human-loop/repo @ feat/two-layer-human-md
+(If you are unsure of the exact ref, name the rough location — a global install
+dir, a sibling clone — so I search there before guessing.)
+```
+
+#### Review Pattern
+
+Before searching broadly for "the other repository's" version or asking the
+human to re-make a design decision, check that the source location was named.
+If it was not, ask for it (or look in global install dirs and sibling clones)
+before reconstructing the design from scratch.
+
+---
+
 ## Adopted Items
 
 No items yet. Entries move here from `Open` once `Linked PRs` shows the
