@@ -8,9 +8,10 @@ follow this schema.
   consolidated. Each rule links to its friction by `H-ID`.
 
 This copy is bundled with the skill so the globally-installed skill can read it
-without the upstream repository on disk. The repository root keeps a copy at
-`../../HUMAN.schema.md`. Only this intro note differs between the two; the schema
-itself is kept in sync, so when you change the schema, change both.
+without the upstream repository on disk. The canonical copy lives at the
+repository root (`../../HUMAN.schema.md`). Only this intro note differs between
+the two; the schema itself is kept in sync, so when you change the schema, change
+both.
 
 ## Friction entry (HUMAN_FRICTIONS.md)
 
@@ -40,7 +41,7 @@ bad" — what changed, what was skipped, what risk was taken on.
 
 - **Category**: prompt | scope | context | decision | review | spec | test | docs
 - **Status**: open | adopted | obsolete | merged
-- **Friction log**: [HUMAN_FRICTIONS.md → H-NNN](HUMAN_FRICTIONS.md)  (one or more H-IDs)
+- **Friction log**: [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md) → `H-NNN`  (one or more H-IDs; the link opens the log, where you locate the matching entry)
 - **Linked PRs**: <PR URLs, or `-`>
 
 #### Better Human Action

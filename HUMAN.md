@@ -35,7 +35,7 @@ When the human-feedback skill fires:
 
 - **Category**: scope
 - **Status**: open
-- **Friction log**: [HUMAN_FRICTIONS.md → H-001](HUMAN_FRICTIONS.md)
+- **Friction log**: [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md) → `H-001`
 - **Linked PRs**: -
 
 #### Better Human Action
@@ -69,7 +69,7 @@ declared scope was touched, ask why before approving.
 
 - **Category**: spec
 - **Status**: open
-- **Friction log**: [HUMAN_FRICTIONS.md → H-002](HUMAN_FRICTIONS.md)
+- **Friction log**: [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md) → `H-002`
 - **Linked PRs**: -
 
 #### Better Human Action

@@ -25,18 +25,22 @@ Invoke the skill when **all** of the following are true:
 - A specific moment of friction can be named, not just a vague feeling.
 - The friction came from the human side (request, decision, review criteria,
   context, specification) — not from the agent's own behavior.
-- A concrete Prompt Pattern or Review Pattern can be written for it.
+
+When those hold, you log the observation in `HUMAN_FRICTIONS.md`. Whether it
+also becomes a rule in `HUMAN.md` is a separate question, decided in the
+procedure: a rule needs a concrete Prompt Pattern or Review Pattern, so an
+observation that cannot yet be generalized stays in the log until it can. The
+absence of a pattern is a reason to hold the rule, not to skip the skill.
 
 Do **not** use this skill for:
 
 - A one-off confusion that is unlikely to recur.
-- Friction already covered by an existing `HUMAN.md` entry whose frequency
-  and impact have not changed.
+- Friction already covered by an existing `HUMAN_FRICTIONS.md` entry whose
+  frequency and impact have not changed.
 - Observations about the agent's own vocabulary or output style — those
-  belong in Claude Code memory, not in `HUMAN.md`.
-- Generic advice ("the human should be clearer"). If you cannot write a
-  paste-ready Prompt Pattern or a runnable Review Pattern, do not add an
-  entry.
+  belong in Claude Code memory, not in this loop.
+- Generic advice ("the human should be clearer") with no specific, nameable
+  friction behind it.
 
 ## Two layers
 
@@ -44,7 +48,8 @@ The loop keeps two files, with two lifecycles:
 
 - **`HUMAN_FRICTIONS.md` — the log layer.** Raw observations, append-only. Each
   is a dated record of when/in what context a friction happened and how it hit
-  the work. Never rewritten.
+  the work. The observation text is never rewritten; only the summary fields
+  (`Last observed`, `Frequency`, `Impact`) move as the same friction recurs.
 - **`HUMAN.md` — the rules layer.** The current, distilled action rules
   (`Better Human Action` + `Prompt Pattern` + `Review Pattern`). Rewritten and
   consolidated as they sharpen. Each rule links to its friction by `H-ID`.
@@ -59,10 +64,10 @@ that takes precedence over this skill.
    friction/rule, and whether several rules now want to be merged upward.
 
 2. **Append the observation to `HUMAN_FRICTIONS.md`.**
-   - If it materially matches an open friction, update that friction's `Last
-     observed`, increment `Frequency`, revise `Impact` if it changed, and add a
-     one-line note under `Observed` if the new instance reveals something the
-     old one did not.
+   - If it materially matches an existing friction, update that friction's `Last
+     observed`, increment `Frequency`, revise `Impact` if it changed, and append
+     a dated one-line note under `Observed` if the new instance reveals something
+     the old one did not.
    - If it is new, append a new friction entry under the next unused `H-NNN` ID.
    - Append-only: never delete or rewrite a past observation.
 

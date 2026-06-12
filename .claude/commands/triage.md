@@ -36,21 +36,21 @@ time. For each rule:
      `HUMAN_FRICTIONS.md`: `YYYY-MM-DD — H-NNN: open → adopted` (or similar).
      Include a short reason if the transition is not obvious.
 
-4. After processing every open entry, also re-read the `Adopted Items`
-   section. If an adopted entry has not been referenced in any new work for
+4. After processing every open rule, also re-read the `Adopted Items`
+   section. If an adopted rule has not been referenced in any new work for
    a long stretch and the underlying behavior change appears stable, you may
    move it to `Obsolete Items` with the note "behavior change is now
    habitual." This is a judgment call; when in doubt, leave it adopted.
 
-Do not invent new entries during triage. If you observe new friction while
-reading old entries, that is a job for the `human-feedback` skill in a
+Do not invent new rules during triage. If you observe new friction while
+reading old rules, that is a job for the `human-feedback` skill in a
 separate session.
 
 When the walk is complete, summarize:
 
-- How many entries were moved, by transition.
-- Any open entries that have grown stale (no `Linked PRs` for many weeks)
+- How many rules were moved, by transition.
+- Any open rules that have grown stale (no `Linked PRs` for many weeks)
   and might be candidates for obsoletion next round.
-- Any pattern in the moved entries — for example, three entries in the
+- Any pattern in the moved rules — for example, three rules in the
   `scope` category all moved to adopted at once may mean the human has
   internalized scope declaration.
