@@ -66,56 +66,83 @@ The schema for an entry is defined in
 
 ## Getting started in another repository
 
-Use [install.sh](install.sh). It has two steps — install everything the loop
-needs once at user scope, then drop `HUMAN.md` and `HUMAN_FRICTIONS.md` into each
-repository where you want the loop. A repository that opts in carries two files:
-the rules layer and the log layer.
+Installing the loop has two parts: set up the machinery once (the
+`human-feedback` skill, the `/triage` command, and the SessionStart + Stop
+hooks), then drop `HUMAN.md` and `HUMAN_FRICTIONS.md` into each repository where
+you want the loop.
+
+For the machinery, pick **one** of the two methods below. They deliver the same
+skill, command, and hooks — use one or the other on a given machine, because
+installing both makes the hooks fire twice.
+
+### Method A — Claude Code plugin (auto-updating)
+
+If you use Claude Code, install the loop as a plugin from this repo's
+marketplace. Claude Code keeps the plugin up to date automatically.
+
+```text
+/plugin marketplace add kawasima/ai-in-the-human-loop
+/plugin install ai-in-the-human-loop@kawasima
+```
+
+The plugin bundles the skill, the command, and the hooks. Its skill and command
+are namespaced: `ai-in-the-human-loop:human-feedback` and
+`/ai-in-the-human-loop:triage`.
+
+### Method B — install.sh (Claude Code, Codex, or Gemini)
+
+Use [install.sh](install.sh) to symlink the machinery into your agent's
+user-scope directories. This is the only route for Codex and Gemini.
 
 ```sh
-# 1. Install the loop for your agent at user scope.
-#    Pick one (or run multiple times for multiple agents):
+# Pick one (or run multiple times for multiple agents):
 curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s claude
 curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s codex
 curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/install.sh | bash -s gemini
-
-# 2. In each repository where you want the loop, drop in the two files:
-cd <your-repo>
-bash ~/.ai-in-the-human-loop/repo/install.sh --init
 ```
 
-What each step does:
+`install.sh <platform>` symlinks `skills/human-feedback/` into your agent's
+user-scope skills directory (`~/.claude/skills/` for Claude Code,
+`~/.agents/skills/` for Codex and Gemini, which share the SKILL.md convention).
+The schema travels bundled inside the skill, so the skill reads it without the
+repository on disk. For Claude Code it also symlinks the `/triage` command into
+`~/.claude/commands/` and registers the SessionStart and Stop hooks in
+`~/.claude/settings.json` — a JSON-aware merge that leaves your existing hooks
+untouched and is idempotent on repeat runs. Gemini uses a TOML format
+incompatible with our command, and modern Codex prefers skills over prompts, so
+neither gets the command; the hooks are Claude-Code-specific.
 
-- **Global install** (`install.sh <platform>`): symlinks
-  `skills/human-feedback/` into your agent's user-scope skills directory
-  (`~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex and
-  Gemini, which share the SKILL.md convention). The schema travels bundled
-  inside the skill, so the skill reads it without the repository on disk. For
-  Claude Code it also symlinks the `/triage` slash command into
-  `~/.claude/commands/` and registers the SessionStart and Stop hooks in
-  `~/.claude/settings.json` — a JSON-aware merge that leaves your existing
-  hooks untouched and is idempotent on repeat runs. Gemini uses a TOML format
-  incompatible with our command, and modern Codex prefers skills over prompts,
-  so neither gets the command; the hooks are Claude-Code-specific.
-- **`--init`**: copies `HUMAN.md` (rules layer) and `HUMAN_FRICTIONS.md` (log
-  layer) into the current directory. Existing files are never overwritten.
-  Nothing else lands in the repo — the skill, command, schema, and hooks all
-  live at user scope.
+`install.sh --update` pulls the latest changes (symlinks pick them up
+automatically); `install.sh --uninstall <platform>` removes the links for that
+platform, removes the SessionStart and Stop hooks for Claude Code, and leaves the
+checkout for others.
 
-Both hooks look for `./HUMAN.md` in the current working directory (the repo
-root at session start). In a directory without a `HUMAN.md` they print nothing
-and exit, so the global hooks are harmless everywhere else.
+### Then, in each repository
 
-After `--init`, empty out the sample entries: in `HUMAN.md` keep the headers; in
+Drop `HUMAN.md` (the rules layer) and `HUMAN_FRICTIONS.md` (the log layer) into
+the repository where you want the loop:
+
+```sh
+# install.sh users — copies both files, never overwriting an existing one:
+cd <your-repo>
+bash ~/.ai-in-the-human-loop/repo/install.sh --init
+
+# plugin users (no install.sh checkout) — copy the two starter files by hand:
+cd <your-repo>
+curl -fsSLO https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/HUMAN.md
+curl -fsSLO https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/HUMAN_FRICTIONS.md
+```
+
+After copying, empty out the sample entries: in `HUMAN.md` keep the headers; in
 `HUMAN_FRICTIONS.md` keep the headers and the `Operation Log` section. Then
 commit both.
 
+Both hooks look for `./HUMAN.md` in the current working directory (the repo root
+at session start). In a directory without a `HUMAN.md` they print nothing and
+exit, so the hooks are harmless everywhere else.
+
 If the target repository uses a documentation language other than English, the
 `human-feedback` skill will match that language when it writes entries.
-
-Other commands: `install.sh --update` pulls the latest changes (symlinks pick
-them up automatically); `install.sh --uninstall <platform>` removes the links
-for that platform, removes the SessionStart and Stop hooks for Claude Code, and leaves
-the checkout for others.
 
 ## Scope of this repository
 

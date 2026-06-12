@@ -1,0 +1,13 @@
+{
+  "name": "kawasima",
+  "owner": {
+    "name": "kawasima"
+  },
+  "plugins": [
+    {
+      "name": "ai-in-the-human-loop",
+      "source": "./",
+      "description": "Run the HUMAN.md feedback loop in any repository: human-feedback skill, /triage command, and SessionStart + Stop hooks."
+    }
+  ]
+}
