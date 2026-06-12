@@ -7,10 +7,11 @@ follow this schema.
 - **`HUMAN.md` — rules layer.** Distilled, current action rules. Rewritten and
   consolidated. Each rule links to its friction by `H-ID`.
 
-This copy is bundled with the skill so the globally-installed skill can read it
-without the upstream repository on disk. The repository root keeps an identical
-copy at `../../HUMAN.schema.md`; the two are kept in sync. When editing the
-schema, change both.
+This is the canonical copy at the repository root. A copy is bundled with the
+skill at `skills/human-feedback/HUMAN.schema.md` so the globally-installed skill
+can read it without the upstream repository on disk. Only this intro note differs
+between the two; the schema itself is kept in sync, so when you change the schema,
+change both.
 
 ## Friction entry (HUMAN_FRICTIONS.md)
 
@@ -40,7 +41,7 @@ bad" — what changed, what was skipped, what risk was taken on.
 
 - **Category**: prompt | scope | context | decision | review | spec | test | docs
 - **Status**: open | adopted | obsolete | merged
-- **Friction log**: [HUMAN_FRICTIONS.md → H-NNN](HUMAN_FRICTIONS.md)  (one or more H-IDs)
+- **Friction log**: [HUMAN_FRICTIONS.md](HUMAN_FRICTIONS.md) → `H-NNN`  (one or more H-IDs; the link opens the log, where you locate the matching entry)
 - **Linked PRs**: <PR URLs, or `-`>
 
 #### Better Human Action

@@ -344,7 +344,7 @@ AI in the human loop installer
 
 Usage:
   install.sh [<platform>]            Install the skill, command, and hook for <platform> at user scope
-  install.sh --init                  Drop a HUMAN.md into the current directory
+  install.sh --init                  Drop HUMAN.md and HUMAN_FRICTIONS.md into the current directory
   install.sh --update                Pull latest changes (links update through symlinks)
   install.sh --uninstall <platform>  Remove links for <platform>
   install.sh --help
