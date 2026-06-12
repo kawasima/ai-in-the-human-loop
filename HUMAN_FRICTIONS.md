@@ -54,6 +54,32 @@ The agent over-shot in some places (refactors the human did not want) and
 under-shot in others (left work the human expected to be included). Review
 time went to renegotiating the boundary rather than judging the result.
 
+### H-003: Name where prior work lives when asking to reflect it
+
+- **Category**: context
+- **First observed**: 2026-06-12
+- **Last observed**: 2026-06-12
+- **Frequency**: 1
+- **Impact**: medium
+
+#### Observed
+
+A request asked to reflect work "done in another repository" into the current
+repo without naming where that work lived. It was not under `~/workspace` (the
+usual clone location) but in a global install checkout
+(`~/.ai-in-the-human-loop/repo`), surfaced through globally-installed skill
+files under `~/.claude`. The agent searched the workspace and the local
+branches, found nothing, and began drafting clarifying questions about the
+intended design — which the human interrupted to point at `$HOME/.claude`. The
+design had already been finalized in that checkout.
+
+#### Impact
+
+The agent nearly asked the human to re-decide a design that already existed on
+disk. The human had to interrupt a clarifying-question round to redirect, and
+discovery cost several search rounds that a one-line location pointer would
+have removed.
+
 ---
 
 ## Operation Log
