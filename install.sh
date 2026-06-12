@@ -103,7 +103,7 @@ clone_or_update() {
 }
 
 skill_source()   { printf '%s\n' "$REPO_DIR/skills/$SKILL_NAME"; }
-command_source() { printf '%s\n' "$REPO_DIR/.claude/commands/$COMMAND_NAME"; }
+command_source() { printf '%s\n' "$REPO_DIR/commands/$COMMAND_NAME"; }
 
 link_skill() {
   local target_dir="$1"

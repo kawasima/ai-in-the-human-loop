@@ -42,6 +42,24 @@ Do not add a rule to `HUMAN.md` when:
 observed friction into prompts, review checks, and decisions that improve the
 next round.
 
+## How the loop is distributed
+
+The same source tree ships two ways; keep both working when you move files.
+
+- **Claude Code plugin.** `.claude-plugin/plugin.json` declares the plugin and
+  its SessionStart + Stop hooks (pointing at `scripts/*.sh` through
+  `${CLAUDE_PLUGIN_ROOT}`); `.claude-plugin/marketplace.json` lists this repo as
+  a one-plugin marketplace (`source: "./"`). Claude Code auto-discovers `skills/`
+  and `commands/` at the repo root, so the skill and the `/triage` command must
+  stay at `skills/human-feedback/` and `commands/triage.md`.
+- **install.sh.** Symlinks `skills/human-feedback/` and `commands/triage.md` into
+  user-scope directories and registers the hooks in `settings.json`. It is the
+  only route for Codex and Gemini.
+
+A machine should use one route, not both — the hooks are additive, so two
+installs make them fire twice. If you move the skill, the command, or the
+scripts, update both `.claude-plugin/plugin.json` and `install.sh`.
+
 ## Language
 
 Write all template files in this repository in English: `README.md`,
