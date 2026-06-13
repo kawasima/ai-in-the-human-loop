@@ -85,9 +85,10 @@ marketplace. Claude Code keeps the plugin up to date automatically.
 /plugin install ai-in-the-human-loop@kawasima
 ```
 
-The plugin bundles the skill, the command, and the hooks. Its skill and command
-are namespaced: `ai-in-the-human-loop:human-feedback` and
-`/ai-in-the-human-loop:triage`.
+The plugin bundles the skill, the commands, and the hooks. Its skill and
+commands are namespaced: `ai-in-the-human-loop:human-feedback`,
+`/ai-in-the-human-loop:triage`, and `/ai-in-the-human-loop:init` (which
+scaffolds the two per-repo files — see below).
 
 ### Method B — install.sh (Claude Code, Codex, or Gemini)
 
@@ -122,20 +123,25 @@ checkout for others.
 Drop `HUMAN.md` (the rules layer) and `HUMAN_FRICTIONS.md` (the log layer) into
 the repository where you want the loop:
 
-```sh
-# install.sh users — copies both files, never overwriting an existing one:
-cd <your-repo>
-bash ~/.ai-in-the-human-loop/repo/install.sh --init
+**Plugin users** — run the bundled command from inside the repo; it writes both
+files already empty of sample entries and never overwrites an existing one:
 
-# plugin users (no install.sh checkout) — copy the two starter files by hand:
-cd <your-repo>
-curl -fsSLO https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/HUMAN.md
-curl -fsSLO https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/HUMAN_FRICTIONS.md
+```text
+/ai-in-the-human-loop:init
 ```
 
-After copying, empty out the sample entries: in `HUMAN.md` keep the headers; in
-`HUMAN_FRICTIONS.md` keep the headers and the `Operation Log` section. Then
-commit both.
+**install.sh users** — `--init` copies both files, never overwriting an existing
+one:
+
+```sh
+cd <your-repo>
+bash ~/.ai-in-the-human-loop/repo/install.sh --init
+```
+
+After `install.sh --init`, empty out the sample entries: in `HUMAN.md` keep the
+headers; in `HUMAN_FRICTIONS.md` keep the headers and the `Operation Log`
+section. Then commit both. (The plugin's `init` command writes them empty
+already, so there is nothing to strip.)
 
 Both hooks look for `./HUMAN.md` in the current working directory (the repo root
 at session start). In a directory without a `HUMAN.md` they print nothing and

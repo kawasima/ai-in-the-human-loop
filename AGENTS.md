@@ -50,14 +50,17 @@ The same source tree ships two ways; keep both working when you move files.
   its SessionStart + Stop hooks (pointing at `scripts/*.sh` through
   `${CLAUDE_PLUGIN_ROOT}`); `.claude-plugin/marketplace.json` lists this repo as
   a one-plugin marketplace (`source: "./"`). Claude Code auto-discovers `skills/`
-  and `commands/` at the repo root, so the skill and the `/triage` command must
-  stay at `skills/human-feedback/` and `commands/triage.md`.
+  and `commands/` at the repo root, so the skill and the commands must stay at
+  `skills/human-feedback/` and `commands/*.md`. The plugin auto-discovers every
+  command in `commands/`, so `commands/init.md` (the per-repo scaffolder, the
+  plugin's `install.sh --init` equivalent) is exposed without any manifest entry.
 - **install.sh.** Symlinks `skills/human-feedback/` and `commands/triage.md` into
   user-scope directories and registers the hooks in `settings.json`. It is the
-  only route for Codex and Gemini.
+  only route for Codex and Gemini. It links only `triage.md`, not `init.md` —
+  install.sh users scaffold per-repo files with `install.sh --init` instead.
 
 A machine should use one route, not both — the hooks are additive, so two
-installs make them fire twice. If you move the skill, the command, or the
+installs make them fire twice. If you move the skill, the commands, or the
 scripts, update both `.claude-plugin/plugin.json` and `install.sh`.
 
 ## Language
