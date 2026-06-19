@@ -61,8 +61,10 @@ emits one short, conditional reminder so the agent reconsiders, against the
 skill's own bar, whether the turn produced friction worth recording. The
 reminder prompts a single follow-up turn; the script reads the Stop input's
 `stop_hook_active` flag and stays silent on that follow-up, so it nudges exactly
-once and never loops. Both hooks stay silent in repositories without a
-`HUMAN.md`.
+once and never loops. The reminder is emitted with `suppressOutput` so its raw
+text is not shown to you, and it instructs the agent to end the follow-up turn
+with no output when there was no friction, so a quiet turn stays quiet. Both
+hooks stay silent in repositories without a `HUMAN.md`.
 
 The schema for an entry is defined in
 [skills/human-feedback/HUMAN.schema.md](skills/human-feedback/HUMAN.schema.md).
