@@ -15,9 +15,8 @@ This repository is two things at once:
 1. **A template** you can install to start the loop in another repository. The
    skill, the `/triage` and `/feedback` commands, the schema, and the
    SessionStart and Stop hooks are written to be domain-neutral and install once
-   at user scope; a repository
-   that opts in carries its own `HUMAN.md` (the rules layer) and
-   `HUMAN_FRICTIONS.md` (the log layer).
+   at user scope; a repository that opts in carries its own `HUMAN.md` (the rules
+   layer) and `HUMAN_FRICTIONS.md` (the log layer).
 2. **A live experiment.** This repository runs its own loop, and the
    `Operation Log` section at the bottom of `HUMAN_FRICTIONS.md` records what
    worked and what did not.
