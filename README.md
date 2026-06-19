@@ -58,8 +58,11 @@ Two Claude Code hooks drive the loop's edges. The **SessionStart hook**
 (`scripts/session-start.sh`) surfaces open entries when a session begins. The
 **Stop hook** (`scripts/stop-reminder.sh`) fires at the end of every turn and
 emits one short, conditional reminder so the agent reconsiders, against the
-skill's own bar, whether the turn produced friction worth recording. It never
-blocks the turn; both hooks stay silent in repositories without a `HUMAN.md`.
+skill's own bar, whether the turn produced friction worth recording. The
+reminder prompts a single follow-up turn; the script reads the Stop input's
+`stop_hook_active` flag and stays silent on that follow-up, so it nudges exactly
+once and never loops. Both hooks stay silent in repositories without a
+`HUMAN.md`.
 
 The schema for an entry is defined in
 [skills/human-feedback/HUMAN.schema.md](skills/human-feedback/HUMAN.schema.md).

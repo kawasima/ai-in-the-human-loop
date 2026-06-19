@@ -2,11 +2,18 @@
 # Nudge the agent, once per turn, to record human-side friction it observed.
 #
 # This runs on the Stop hook (after the main agent finishes a turn). It emits a
-# single short, conditional reminder as additionalContext and exits 0 — it never
-# blocks, so it does not force the agent to continue and creates no loop risk.
-# The agent sees the reminder on its next turn and decides, against the
-# human-feedback skill's own high bar, whether the turn's friction is worth an
-# entry. The script makes no judgment of its own about whether friction occurred.
+# single short, conditional reminder as additionalContext and exits 0. The agent
+# then reflects, against the human-feedback skill's own high bar, on whether the
+# turn's friction is worth an entry. The script makes no judgment of its own
+# about whether friction occurred.
+#
+# Why the stop_hook_active guard matters: emitting additionalContext from a Stop
+# hook makes the host re-invoke the agent for another turn. That turn also ends,
+# firing this hook again — so without a guard the reminder re-injects forever and
+# the turn never ends (the host eventually caps it as a runaway hook). The host
+# sets stop_hook_active: true on the input whenever the Stop fired as a result of
+# a previous Stop's continuation. We read that flag and stay silent when it is
+# set, so the reminder is injected exactly once and the follow-up turn can end.
 #
 # Installed globally and wired into a Stop hook in ~/.claude/settings.json, so it
 # runs for every repository. It looks for a HUMAN.md in the current working
@@ -21,6 +28,23 @@ HUMAN_MD="./HUMAN.md"
 
 if [[ ! -f "$HUMAN_MD" ]]; then
   exit 0
+fi
+
+# Read the hook input from stdin and bail out while a Stop-triggered turn is
+# already in flight, so the reminder cannot loop. The read is best-effort: if no
+# input arrives we treat stop_hook_active as false and fall through to emit once.
+INPUT="$(cat 2>/dev/null || true)"
+
+if command -v jq >/dev/null 2>&1; then
+  if [[ "$(printf '%s' "$INPUT" | jq -r '.stop_hook_active // false' 2>/dev/null)" == "true" ]]; then
+    exit 0
+  fi
+else
+  # Fallback without jq: match the flag in the raw JSON, tolerating any
+  # whitespace (spaces, tabs, newlines) around the colon.
+  if [[ "$INPUT" =~ \"stop_hook_active\"[[:space:]]*:[[:space:]]*true ]]; then
+    exit 0
+  fi
 fi
 
 REMINDER='[human-loop] If this turn involved non-obvious human-side friction (an unclear request, an undecided judgment, a misread assumption, a repeated question), consider recording it in HUMAN.md via the human-feedback skill. If there was none, do nothing.'
