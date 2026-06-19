@@ -1,6 +1,6 @@
 {
   "name": "ai-in-the-human-loop",
-  "description": "Run the HUMAN.md feedback loop in any repository: a human-feedback skill, a /triage command, and SessionStart + Stop hooks that surface and capture human-side friction.",
+  "description": "Run the HUMAN.md feedback loop in any repository: a human-feedback skill, /triage and /feedback commands, and SessionStart + Stop hooks that surface and capture human-side friction.",
   "version": "0.1.0",
   "author": {
     "name": "kawasima"

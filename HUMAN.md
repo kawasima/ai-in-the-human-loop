@@ -27,6 +27,13 @@ When the human-feedback skill fires:
    Pattern.** If you cannot write one, do not make a rule — leave it in the
    friction log only.
 
+Collection runs automatically by default: the Stop hook nudges once per turn to
+reconsider whether friction is worth recording. To collect on demand instead,
+add `"env": { "HUMAN_LOOP_MODE": "explicit" }` to this repo's
+`.claude/settings.json`; the per-turn nudge then stays silent and you record
+friction with the `/feedback` command when you want to (plugin installs namespace
+it as `/ai-in-the-human-loop:feedback`).
+
 ---
 
 ## Open Feedback Items

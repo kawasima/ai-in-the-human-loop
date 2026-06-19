@@ -26,12 +26,35 @@
 # that do not use the loop. The reminder is one self-contained line, so it reads
 # correctly whether the host surfaces Stop output as injected next-turn context
 # or as plain hook output.
+#
+# Collection mode: a repository can choose explicit collection instead of this
+# per-turn nudge by setting HUMAN_LOOP_MODE=explicit in its .claude/settings.json
+# "env" block. In explicit mode the user records friction on demand via the
+# /feedback command and this hook stays silent. Default (unset or "auto") nudges.
 
 set -euo pipefail
 
 HUMAN_MD="./HUMAN.md"
 
 if [[ ! -f "$HUMAN_MD" ]]; then
+  exit 0
+fi
+
+# Collection mode (default: auto). In explicit mode, skip the nudge entirely.
+# The env var is the documented channel (Claude Code injects .claude/settings.json
+# "env" into hook processes); when it is absent we read the settings files
+# directly as a fallback, since it is unverified whether plugin-contributed hooks
+# inherit project env. settings.local.json overrides settings.json.
+MODE="${HUMAN_LOOP_MODE:-}"
+if [[ -z "$MODE" ]] && command -v jq >/dev/null 2>&1; then
+  for settings in .claude/settings.local.json .claude/settings.json; do
+    [[ -f "$settings" ]] || continue
+    MODE="$(jq -r '.env.HUMAN_LOOP_MODE // empty' "$settings" 2>/dev/null || true)"
+    [[ -n "$MODE" ]] && break
+  done
+fi
+
+if [[ "$MODE" == "explicit" ]]; then
   exit 0
 fi
 
