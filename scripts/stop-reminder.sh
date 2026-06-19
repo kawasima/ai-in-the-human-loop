@@ -7,6 +7,11 @@
 # turn's friction is worth an entry. The script makes no judgment of its own
 # about whether friction occurred.
 #
+# The reminder is emitted with suppressOutput so its raw text is not shown in the
+# transcript, and it tells the agent to end the follow-up turn with no output
+# when there was no friction. The agent still receives the additionalContext (the
+# nudge keeps working); only the visible noise of a no-friction turn is removed.
+#
 # Why the stop_hook_active guard matters: emitting additionalContext from a Stop
 # hook makes the host re-invoke the agent for another turn. That turn also ends,
 # firing this hook again — so without a guard the reminder re-injects forever and
@@ -47,15 +52,19 @@ else
   fi
 fi
 
-REMINDER='[human-loop] If this turn involved non-obvious human-side friction (an unclear request, an undecided judgment, a misread assumption, a repeated question), consider recording it in HUMAN.md via the human-feedback skill. If there was none, do nothing.'
+REMINDER='[human-loop] If this turn involved non-obvious human-side friction (an unclear request, an undecided judgment, a misread assumption, a repeated question), consider recording it in HUMAN.md via the human-feedback skill. If there was none, end this turn immediately with no output or commentary.'
 
+# suppressOutput hides this hook's stdout from the transcript, so the raw
+# "[human-loop] ..." line is not shown to the user; the agent still receives the
+# additionalContext and does its one follow-up turn. Paired with the reminder's
+# "end immediately with no output" instruction, a no-friction turn stays quiet.
 if command -v jq >/dev/null 2>&1; then
   jq -cn --arg ctx "$REMINDER" \
-    '{hookSpecificOutput: {hookEventName: "Stop", additionalContext: $ctx}}'
+    '{suppressOutput: true, hookSpecificOutput: {hookEventName: "Stop", additionalContext: $ctx}}'
 else
   # Fallback without jq: the reminder is a fixed string with no embedded quotes
   # or backslashes, so emitting it inside this JSON punctuation by hand is safe.
-  printf '{"hookSpecificOutput":{"hookEventName":"Stop","additionalContext":"%s"}}\n' "$REMINDER"
+  printf '{"suppressOutput":true,"hookSpecificOutput":{"hookEventName":"Stop","additionalContext":"%s"}}\n' "$REMINDER"
 fi
 
 exit 0
