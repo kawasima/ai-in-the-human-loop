@@ -13,8 +13,9 @@ the human can use next time.
 This repository is two things at once:
 
 1. **A template** you can install to start the loop in another repository. The
-   skill, the `/triage` command, the schema, and the SessionStart and Stop hooks
-   are written to be domain-neutral and install once at user scope; a repository
+   skill, the `/triage` and `/feedback` commands, the schema, and the
+   SessionStart and Stop hooks are written to be domain-neutral and install once
+   at user scope; a repository
    that opts in carries its own `HUMAN.md` (the rules layer) and
    `HUMAN_FRICTIONS.md` (the log layer).
 2. **A live experiment.** This repository runs its own loop, and the
@@ -79,12 +80,12 @@ The schema for an entry is defined in
 ## Getting started in another repository
 
 Installing the loop has two parts: set up the machinery once (the
-`human-feedback` skill, the `/triage` command, and the SessionStart + Stop
-hooks), then drop `HUMAN.md` and `HUMAN_FRICTIONS.md` into each repository where
-you want the loop.
+`human-feedback` skill, the `/triage` and `/feedback` commands, and the
+SessionStart + Stop hooks), then drop `HUMAN.md` and `HUMAN_FRICTIONS.md` into
+each repository where you want the loop.
 
 For the machinery, pick **one** of the two methods below. They deliver the same
-skill, command, and hooks — use one or the other on a given machine, because
+skill, commands, and hooks — use one or the other on a given machine, because
 installing both makes the hooks fire twice.
 
 ### Method A — Claude Code plugin (auto-updating)
@@ -99,8 +100,10 @@ marketplace. Claude Code keeps the plugin up to date automatically.
 
 The plugin bundles the skill, the commands, and the hooks. Its skill and
 commands are namespaced: `ai-in-the-human-loop:human-feedback`,
-`/ai-in-the-human-loop:triage`, and `/ai-in-the-human-loop:init` (which
-scaffolds the two per-repo files — see below).
+`/ai-in-the-human-loop:triage`, `/ai-in-the-human-loop:feedback`, and
+`/ai-in-the-human-loop:init` (which scaffolds the two per-repo files — see
+below). Elsewhere this README writes the unnamespaced names (`/triage`,
+`/feedback`); plugin users prefix them with `ai-in-the-human-loop:`.
 
 ### Method B — install.sh (Claude Code, Codex, or Gemini)
 
@@ -118,12 +121,12 @@ curl -fsSL https://raw.githubusercontent.com/kawasima/ai-in-the-human-loop/main/
 user-scope skills directory (`~/.claude/skills/` for Claude Code,
 `~/.agents/skills/` for Codex and Gemini, which share the SKILL.md convention).
 The schema travels bundled inside the skill, so the skill reads it without the
-repository on disk. For Claude Code it also symlinks the `/triage` command into
-`~/.claude/commands/` and registers the SessionStart and Stop hooks in
-`~/.claude/settings.json` — a JSON-aware merge that leaves your existing hooks
-untouched and is idempotent on repeat runs. Gemini uses a TOML format
-incompatible with our command, and modern Codex prefers skills over prompts, so
-neither gets the command; the hooks are Claude-Code-specific.
+repository on disk. For Claude Code it also symlinks the `/triage` and
+`/feedback` commands into `~/.claude/commands/` and registers the SessionStart
+and Stop hooks in `~/.claude/settings.json` — a JSON-aware merge that leaves your
+existing hooks untouched and is idempotent on repeat runs. Gemini uses a TOML
+format incompatible with our commands, and modern Codex prefers skills over
+prompts, so neither gets the commands; the hooks are Claude-Code-specific.
 
 `install.sh --update` pulls the latest changes (symlinks pick them up
 automatically); `install.sh --uninstall <platform>` removes the links for that
@@ -172,6 +175,6 @@ and why.
 ## Experiments
 
 [examples/todo-app](examples/todo-app/) is a small stub project used as a
-dogfooding target. The skill, command, schema, and hooks come from the global
+dogfooding target. The skill, commands, schema, and hooks come from the global
 install; the example maintains its own `HUMAN.md` so the loop can be exercised
 on a contained codebase without polluting this repository's own feedback log.
