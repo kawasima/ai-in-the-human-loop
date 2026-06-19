@@ -66,6 +66,13 @@ text is not shown to you, and it instructs the agent to end the follow-up turn
 with no output when there was no friction, so a quiet turn stays quiet. Both
 hooks stay silent in repositories without a `HUMAN.md`.
 
+Observe runs in one of two modes per repository. By default it is automatic —
+the per-turn nudge above. If you would rather collect on demand, set
+`"env": { "HUMAN_LOOP_MODE": "explicit" }` in the repository's
+`.claude/settings.json`; the Stop hook then stays silent and you record friction
+deliberately with the `/feedback` command. `/feedback` works in either mode, and
+`/triage` still walks the open rules in `HUMAN.md`.
+
 The schema for an entry is defined in
 [skills/human-feedback/HUMAN.schema.md](skills/human-feedback/HUMAN.schema.md).
 

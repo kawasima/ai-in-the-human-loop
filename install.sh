@@ -33,11 +33,12 @@ REPO_URL="${AIHL_REPO_URL:-https://github.com/kawasima/ai-in-the-human-loop.git}
 REPO_DIR="${AIHL_DIR:-$HOME/.ai-in-the-human-loop/repo}"
 
 SKILL_NAME="human-feedback"
-COMMAND_NAME="triage.md"
+COMMAND_NAMES=(triage.md feedback.md)
 
 # Platform table — id|skills-target-dir|commands-target-dir-or-NONE
 #   - "NONE" in the commands column means this platform does not get the
-#     /triage command (e.g. Gemini uses TOML, incompatible with our Markdown).
+#     /triage and /feedback commands (e.g. Gemini uses TOML, incompatible with
+#     our Markdown).
 platforms_table() {
   cat <<EOF
 claude|$HOME/.claude/skills|$HOME/.claude/commands
@@ -103,7 +104,7 @@ clone_or_update() {
 }
 
 skill_source()   { printf '%s\n' "$REPO_DIR/skills/$SKILL_NAME"; }
-command_source() { printf '%s\n' "$REPO_DIR/commands/$COMMAND_NAME"; }
+command_source() { printf '%s\n' "$REPO_DIR/commands/$1"; }
 
 link_skill() {
   local target_dir="$1"
@@ -118,12 +119,14 @@ link_skill() {
 link_command() {
   local target_dir="$1"
   [[ "$target_dir" == "NONE" ]] && return 0
-  local src dst
-  src="$(command_source)"
-  dst="$target_dir/$COMMAND_NAME"
+  local name src dst
   mkdir -p "$target_dir"
-  ln -sfn "$src" "$dst"
-  printf '  ✓ %s → %s\n' "$dst" "$src"
+  for name in "${COMMAND_NAMES[@]}"; do
+    src="$(command_source "$name")"
+    dst="$target_dir/$name"
+    ln -sfn "$src" "$dst"
+    printf '  ✓ %s → %s\n' "$dst" "$src"
+  done
 }
 
 session_start_script() { printf '%s\n' "$REPO_DIR/scripts/session-start.sh"; }
@@ -225,11 +228,14 @@ unlink_skill() {
 unlink_command() {
   local target_dir="$1"
   [[ "$target_dir" == "NONE" ]] && return 0
-  local dst="$target_dir/$COMMAND_NAME"
-  if [[ -L "$dst" ]]; then
-    rm -f "$dst"
-    printf '  ✓ removed %s\n' "$dst"
-  fi
+  local name dst
+  for name in "${COMMAND_NAMES[@]}"; do
+    dst="$target_dir/$name"
+    if [[ -L "$dst" ]]; then
+      rm -f "$dst"
+      printf '  ✓ removed %s\n' "$dst"
+    fi
+  done
 }
 
 cmd_install() {
@@ -243,10 +249,10 @@ cmd_install() {
   printf -- '→ Linking skill into %s\n' "$skills_dir"
   link_skill "$skills_dir"
   if [[ "$commands_dir" != "NONE" ]]; then
-    printf -- '→ Linking /triage command into %s\n' "$commands_dir"
+    printf -- '→ Linking /triage and /feedback commands into %s\n' "$commands_dir"
     link_command "$commands_dir"
   else
-    printf -- '→ Skipping /triage command (not supported on %s)\n' "$id"
+    printf -- '→ Skipping /triage and /feedback commands (not supported on %s)\n' "$id"
   fi
 
   # The SessionStart and Stop hooks are Claude Code mechanisms. SessionStart
@@ -297,10 +303,10 @@ cmd_update() {
 }
 
 # --init: drop HUMAN.md (rules layer) and HUMAN_FRICTIONS.md (log layer) into the
-# current directory. Everything else the loop needs — the skill, the /triage
-# command, the schema, and the SessionStart and Stop hooks — is installed once at
-# user scope by `install.sh <platform>`, so a repo that opts into the loop carries
-# two files.
+# current directory. Everything else the loop needs — the skill, the /triage and
+# /feedback commands, the schema, and the SessionStart and Stop hooks — is
+# installed once at user scope by `install.sh <platform>`, so a repo that opts
+# into the loop carries two files.
 #
 # An existing file is never overwritten; it is user-edited and silently replacing
 # it would lose work (see spec-kit issue #507).
@@ -333,9 +339,14 @@ cmd_init() {
   printf '  Empty the sample entries — in HUMAN.md keep the headers; in\n'
   printf '  HUMAN_FRICTIONS.md keep the headers and the Operation Log section —\n'
   printf '  then commit both.\n'
-  printf '  The skill, the /triage command, the schema, and the SessionStart\n'
-  printf '  and Stop hooks are delivered globally — make sure you also ran:\n'
+  printf '  The skill, the /triage and /feedback commands, the schema, and the\n'
+  printf '  SessionStart and Stop hooks are delivered globally — make sure you\n'
+  printf '  also ran:\n'
   printf '    install.sh <platform>\n'
+  printf '\n  Observe runs automatically (a per-turn nudge) by default. For quiet,\n'
+  printf '  on-demand collection instead, set in this repo'"'"'s .claude/settings.json:\n'
+  printf '    { "env": { "HUMAN_LOOP_MODE": "explicit" } }\n'
+  printf '  then record friction with /feedback when you want to.\n'
 }
 
 usage() {
@@ -343,7 +354,7 @@ usage() {
 AI in the human loop installer
 
 Usage:
-  install.sh [<platform>]            Install the skill, command, and hook for <platform> at user scope
+  install.sh [<platform>]            Install the skill, commands, and hooks for <platform> at user scope
   install.sh --init                  Drop HUMAN.md and HUMAN_FRICTIONS.md into the current directory
   install.sh --update                Pull latest changes (links update through symlinks)
   install.sh --uninstall <platform>  Remove links for <platform>

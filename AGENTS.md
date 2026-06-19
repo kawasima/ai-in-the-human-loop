@@ -54,14 +54,24 @@ The same source tree ships two ways; keep both working when you move files.
   `skills/human-feedback/` and `commands/*.md`. The plugin auto-discovers every
   command in `commands/`, so `commands/init.md` (the per-repo scaffolder, the
   plugin's `install.sh --init` equivalent) is exposed without any manifest entry.
-- **install.sh.** Symlinks `skills/human-feedback/` and `commands/triage.md` into
-  user-scope directories and registers the hooks in `settings.json`. It is the
-  only route for Codex and Gemini. It links only `triage.md`, not `init.md` —
-  install.sh users scaffold per-repo files with `install.sh --init` instead.
+- **install.sh.** Symlinks `skills/human-feedback/` and the commands in
+  `COMMAND_NAMES` (`triage.md`, `feedback.md`) into user-scope directories and
+  registers the hooks in `settings.json`. It is the only route for Codex and
+  Gemini. It does not link `init.md` — install.sh users scaffold per-repo files
+  with `install.sh --init` instead.
 
 A machine should use one route, not both — the hooks are additive, so two
 installs make them fire twice. If you move the skill, the commands, or the
 scripts, update both `.claude-plugin/plugin.json` and `install.sh`.
+
+Observe has two modes per repository. By default the Stop hook nudges every turn
+(auto). A repo opts into explicit collection by setting
+`HUMAN_LOOP_MODE=explicit` in its `.claude/settings.json` `env`; the Stop hook
+reads that env var — falling back to parsing the settings files with `jq`, since
+it is unverified whether plugin-contributed hooks inherit project `env` — and
+stays silent, leaving the user to record friction with `/feedback`. The Stop
+hook is Claude-Code-only on both routes, so this toggle is a Claude Code
+concern.
 
 ## Language
 
