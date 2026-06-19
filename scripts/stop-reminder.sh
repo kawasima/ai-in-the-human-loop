@@ -40,11 +40,11 @@ if command -v jq >/dev/null 2>&1; then
     exit 0
   fi
 else
-  # Fallback without jq: match the flag in the raw JSON, tolerating optional
-  # whitespace after the colon.
-  case "$INPUT" in
-    *'"stop_hook_active":true'* | *'"stop_hook_active": true'*) exit 0 ;;
-  esac
+  # Fallback without jq: match the flag in the raw JSON, tolerating any
+  # whitespace (spaces, tabs, newlines) around the colon.
+  if [[ "$INPUT" =~ \"stop_hook_active\"[[:space:]]*:[[:space:]]*true ]]; then
+    exit 0
+  fi
 fi
 
 REMINDER='[human-loop] If this turn involved non-obvious human-side friction (an unclear request, an undecided judgment, a misread assumption, a repeated question), consider recording it in HUMAN.md via the human-feedback skill. If there was none, do nothing.'
